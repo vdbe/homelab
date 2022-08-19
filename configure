@@ -399,7 +399,6 @@ verify_success() {
 }
 
 generate_ansible_host_secrets() {
-    echo "HERE - 01"
     local node_id=
     local node_username=
     local node_password=
