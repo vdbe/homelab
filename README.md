@@ -220,7 +220,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 ### ⛵ Installing k3s with Ansible
 
-📍 Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./provision/kubeconfig` for use with interacting with your cluster with `kubectl`.
+📍 Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./kubeconfig` for use with interacting with your cluster with `kubectl`.
 
 ☢️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
 
@@ -295,7 +295,7 @@ The cluster application [external-dns](https://github.com/kubernetes-sigs/extern
 
 2. Push you changes to git
 
-    📍 **Verify** all the `*.sops.yaml` and `*.sops.yml` files under the `./cluster` and `./provision` folders are **encrypted** with SOPS
+    📍 **Verify** all the `*.sops.yaml` and `*.sops.yml` files under the `./kubernetes/cluster` and `./provision` folders are **encrypted** with SOPS
 
     ```sh
     git add -A
@@ -400,7 +400,7 @@ Now if nothing is working, that is expected. This is DNS after all!
 
 By default in this template Kubernetes ingresses are set to use the [Let's Encrypt Staging Environment](https://letsencrypt.org/docs/staging-environment/). This will hopefully reduce issues from ACME on requesting certificates until you are ready to use this in "Production".
 
-Once you have confirmed there are no issues requesting your certificates replace `letsencrypt-staging` with `letsencrypt-production` in your ingress annotations for `cert-manager.io/cluster-issuer`
+Once you have confirmed there are no issues requesting your certificates replace `letsencrypt-staging` with `letsencrypt-production` in your ingress annotations for `cert-manager.io/kubernetes/cluster-issuer`
 
 ### 🤖 Renovatebot
 
@@ -417,7 +417,7 @@ Flux is pull-based by design meaning it will periodically check your git reposit
 1. Webhook URL - Your webhook receiver will be deployed on `https://flux-receiver.${BOOTSTRAP_CLOUDFLARE_DOMAIN}/hook/:hookId`. In order to find out your hook id you can run the following command:
 
     ```sh
-    kubectl -n flux-system get receiver/github-receiver --kubeconfig=./provision/kubeconfig
+    kubectl -n flux-system get receiver/github-receiver --kubeconfig=./kubeconfig
     # NAME              AGE    READY   STATUS
     # github-receiver   6h8m   True    Receiver initialized with URL: /hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
@@ -431,7 +431,7 @@ Flux is pull-based by design meaning it will periodically check your git reposit
 2. Webhook secret - Your webhook secret can be found by decrypting the `secret.sops.yaml` using the following command:
 
     ```sh
-    sops -d ./cluster/apps/flux-system/webhooks/github/secret.sops.yaml | yq .stringData.token
+    sops -d ./kubernetes/cluster/apps/flux-system/webhooks/github/secret.sops.yaml | yq .stringData.token
     ```
 
     **Note:** Don't forget to update the `BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET` variable in your `.config.env` file so it matches the generated secret if applicable
@@ -466,7 +466,7 @@ The benefits of a public repository include:
 
   1. Generate new SSH key:
       ```sh
-      ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f ./cluster/github-deploy-key -q -P ""
+      ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f ./kubernetes/cluster/github-deploy-key -q -P ""
       ```
   2. Paste public key in the deploy keys section of your repository settings
   3. Create sops secret in `cluster/flux/flux-system/github-deploy-key.sops.yaml` with the contents of:
@@ -491,7 +491,7 @@ The benefits of a public repository include:
       ```
   4. Encrypt secret:
       ```sh
-      sops --encrypt --in-place ./cluster/flux/flux-system/github-deploy-key.sops.yaml
+      sops --encrypt --in-place ./kubernetes/cluster/flux/flux-system/github-deploy-key.sops.yaml
       ```
   5. Apply secret to cluster:
       ```sh
