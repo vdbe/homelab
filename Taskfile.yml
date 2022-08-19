@@ -24,13 +24,13 @@ tasks:
 
   init:
     desc: Initialize workstation dependencies with Brew
-    cmds:
-      - brew install {{.DEPS}} {{.CLI_ARGS}}
-    preconditions:
-      - sh: command -v brew
-        msg: |
-          Homebrew is not installed. Using MacOS, Linux or WSL?
-          Head over to https://brew.sh to get up and running.
+    #cmds:
+    #  - brew install {{.DEPS}} {{.CLI_ARGS}}
+    #preconditions:
+    #  - sh: command -v brew
+    #    msg: |
+    #      Homebrew is not installed. Using MacOS, Linux or WSL?
+    #      Head over to https://brew.sh to get up and running.
     vars:
       DEPS: >-
         age
